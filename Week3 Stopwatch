@@ -1,0 +1,100 @@
+# template for "Stopwatch: The Game"
+import simplegui
+
+# define global variables
+
+current_time = 0
+string_format = "0:00.0"
+running_status = False
+total = 0
+right_hit = 0
+string_score = "0/0"
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(t):
+    global string_format
+    mintues = t / 600
+    seconds = (t % 600) /10
+    last_digit = (t % 600) % 10
+    if (seconds >=10):
+        string_format = str(mintues) + ":" + str(seconds) + "." + str(last_digit)    
+    else:
+        string_format = str(mintues) + ":0" + str(seconds) + "." + str(last_digit)
+    
+    return string_format
+
+
+# define event handlers for buttons; "Start", "Stop", "Reset"
+def start():
+    global total
+    global running_status
+    global string_score
+    timer.start()
+    
+    """to avoid clicking start to change the score,
+        add running_status to ensure that this is in different 
+        states: start/stop(True/False)
+    """
+    if(not running_status):
+        total += 1
+        string_score = str(right_hit) + "/" + str(total)
+    running_status = True
+    return string_score
+
+def stop():
+    global current_time
+    global running_status
+    global string_score
+    global right_hit
+    global total
+    timer.stop()
+    
+    #each time stop the watch, check whether the last digit is 0
+    # if it is true, right_hit + 1
+    if(running_status == True and current_time%10 == 0):
+        right_hit += 1
+        string_score = str(right_hit) + "/" + str(total)
+    running_status = False
+    return string_score
+    
+def reset():
+    global current_time
+    global string_format
+    global running_status
+    global string_score
+    global total
+    global right_hit
+    
+    if(running_status == False):
+        current_time = 0
+        string_format = "0:00.0"
+        running_status = False
+        total = 0
+        right_hit = 0
+        string_score = "0/0"
+    
+# define event handler for timer with 0.1 sec interval
+def timer_handler():
+    global current_time
+    current_time += 1
+    format(current_time)
+    
+# define draw handler
+def draw(canvas):
+    canvas.draw_text(string_score, (300,100), 30,'Red')
+    canvas.draw_text(string_format,(200,200),50, 'Red')
+    
+# create frame
+frame = simplegui.create_frame("Stopwatch", 500,400)
+timer = simplegui.create_timer(100,timer_handler)
+
+# register event handlers
+frame.set_draw_handler(draw)
+start = frame.add_button("Start", start,80)
+stop = frame.add_button("Stop", stop,80)
+reset = frame.add_button("Reset", reset,80)
+frame.set_canvas_background('White')
+# start frame
+frame.start()
+# Please remember to review the grading rubric
